@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 
 public static class PubSub
 {
-		
+	public static void Subscribe<T>(string[] topic, Action<T> callback)
+	{
+
+	}
+
+	public static void Broadcast<T>(string[] topic, T payload)
+	{
+
+	}
+	
+	
 }
