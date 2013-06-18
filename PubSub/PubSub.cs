@@ -49,7 +49,7 @@ namespace PubSub
 	{
 		static TreeNode root = new TreeNode();
 
-		public static void Subscribe<T>(string[] topic, Action<T> callback)
+		public static void Subscribe<T>(Action<T> callback, params string[] topic)
 		{
 			foreach (var s in topic)
 			{
@@ -75,7 +75,7 @@ namespace PubSub
 
 		}
 
-		public static void Broadcast<T>(string[] topic, T payload)
+		public static void Broadcast<T>(T payload, params string[] topic)
 		{
 			var curNode = root;
 
