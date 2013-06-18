@@ -43,12 +43,21 @@ namespace PubSub
 
 	}
 
-
-
 	public static class Transmitter
 	{
 		static TreeNode root = new TreeNode();
 
+		/// <summary>
+		/// Subscribes a callback to a topic, which will then be called by any Transmit() which specifies
+		/// 1) the same topic, 
+		/// 2) an object that is of the same class, or derived from the callback's parameter type. 
+		/// 
+		/// If the subscribed topic name ends in a "*", the callback will also be subscribed to all sub-topics.
+		/// Empty or null topic components are forbidden. 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="callback"></param>
+		/// <param name="topic"></param>
 		public static void Subscribe<T>(Action<T> callback, params string[] topic)
 		{
 			foreach (var s in topic)
@@ -75,6 +84,13 @@ namespace PubSub
 
 		}
 
+		/// <summary>
+		/// Broadcasts the given object to all of the callbacks subscribed to the named topic. 
+		/// The callbacks will be invoked if they can accept the object without a casting error.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="payload"></param>
+		/// <param name="topic"></param>
 		public static void Broadcast<T>(T payload, params string[] topic)
 		{
 			var curNode = root;
