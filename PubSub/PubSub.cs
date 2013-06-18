@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
+using System.Threading;
+using System.Linq;
 
 namespace PubSub
 {
@@ -44,15 +47,72 @@ namespace PubSub
 
 	public static class Transmitter
 	{
-		TreeNode root = new TreeNode();
+		static TreeNode root = new TreeNode();
 
 		public static void Subscribe<T>(string[] topic, Action<T> callback)
 		{
-			
+			foreach (var s in topic)
+			{
+				if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("topic");
+			}
+
+			var curNode = root;
+
+			foreach (var subt in topic)
+			{
+				if (subt == "*")
+				{
+					curNode.AddWildCard(callback);
+					return;
+				}
+				else
+				{
+					curNode = curNode.GetChild(subt);
+				}
+			}
+
+			curNode.AddPayload(callback);
+
 		}
 
 		public static void Broadcast<T>(string[] topic, T payload)
 		{
+			var curNode = root;
+
+			var invokes = new List<Delegate>();
+
+			foreach (var comp in topic)
+			{
+				foreach (var delegateObj in curNode.GetWildcards())
+				{
+					var parameters = delegateObj.Method.GetParameters();
+					if (parameters.Length > 1) throw new InvalidOperationException("Found non-unary delegate");
+
+					var arg = parameters[0];
+					var argType = arg.GetType();
+					if (argType.IsSubclassOf(typeof(T)))
+					{
+						invokes.Add(delegateObj);
+					}
+				}
+				curNode = curNode.GetChild(comp);
+			}
+
+			foreach (var delegateObj in curNode.GetPayloads())
+			{
+				var parameters = delegateObj.Method.GetParameters();
+				if (parameters.Length > 1) throw new InvalidOperationException("Found non-unary delegate");
+
+				var arg = parameters[0];
+				var argType = arg.GetType();
+				if (argType.IsSubclassOf(typeof(T)))
+				{
+					invokes.Add(delegateObj);
+				}
+			}
+
+			
+			invokes.AsParallel().ForAll(delegate(Delegate D) { D.DynamicInvoke(payload); });
 
 		}
 
