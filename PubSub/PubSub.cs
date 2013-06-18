@@ -89,8 +89,8 @@ namespace PubSub
 					if (parameters.Length > 1) throw new InvalidOperationException("Found non-unary delegate");
 
 					var arg = parameters[0];
-					var argType = arg.GetType();
-					if (argType.IsSubclassOf(typeof(T)))
+					var argType = arg.ParameterType;
+					if (typeof(T).IsSubclassOf(argType))
 					{
 						invokes.Add(delegateObj);
 					}
@@ -104,8 +104,8 @@ namespace PubSub
 				if (parameters.Length > 1) throw new InvalidOperationException("Found non-unary delegate");
 
 				var arg = parameters[0];
-				var argType = arg.GetType();
-				if (argType.IsSubclassOf(typeof(T)))
+				var argType = arg.ParameterType;
+				if (typeof(T).Equals(argType) ||typeof(T).IsSubclassOf(argType))
 				{
 					invokes.Add(delegateObj);
 				}
