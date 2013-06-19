@@ -60,6 +60,9 @@ namespace PubSub
 		/// <param name="topic"></param>
 		public static void Subscribe<T>(Action<T> callback, params string[] topic)
 		{
+			if (callback == null) throw new ArgumentNullException("callback");
+			if (topic == null || topic.Length == 0) throw new ArgumentException("topic");
+
 			foreach (var s in topic)
 			{
 				if (string.IsNullOrEmpty(s)) throw new ArgumentNullException("topic");
@@ -93,6 +96,13 @@ namespace PubSub
 		/// <param name="topic"></param>
 		public static void Broadcast<T>(T payload, params string[] topic)
 		{
+			//if (callback == null) throw new ArgumentNullException("callback");
+			if (topic == null) throw new ArgumentException("topic");
+			foreach (var s in topic)
+			{
+				if (s == null) throw new ArgumentNullException("topic");
+			}
+
 			var curNode = root;
 
 			var invokes = new List<Delegate>();
